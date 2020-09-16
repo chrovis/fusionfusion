@@ -1,0 +1,6 @@
+.dockerignore
+.git
+.github
+.travis.yml
+LICENSE
+tests

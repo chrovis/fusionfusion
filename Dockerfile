@@ -28,9 +28,8 @@ RUN pip install --upgrade setuptools
 RUN pip install annot_utils==0.2.0
 RUN pip install pysam==0.13
 
-RUN git clone -b feature/no-blat https://github.com/chrovis-genomon/fusionfusion.git && \
-    cd fusionfusion && \
-    python setup.py install
+COPY . /root/fusionfusion
+RUN cd /root/fusionfusion && python setup.py install
 
 RUN pip install chimera_utils==0.4.1
 
