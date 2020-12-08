@@ -126,7 +126,11 @@ def get_junc_info(chr, pos, ref_exon_tb, ens_exon_tb, junction_margin):
 
 
 
-def filterAndAnnotation(inputFilePath, outputFilePath, genome_id, is_grc, includes_scores=True):
+def filterAndAnnotation(inputFilePath,
+                        outputFilePath,
+                        genome_id,
+                        is_grc,
+                        includes_scores=True):
 
     hIN = open(inputFilePath, 'r')
     hOUT = open(outputFilePath, 'w')
@@ -195,7 +199,7 @@ def filterAndAnnotation(inputFilePath, outputFilePath, genome_id, is_grc, includ
             + ';'.join(gene2) + '\t' + ';'.join(junction2)
         if includes_scores:
             line += '\t' + F[11] + '\t' + F[12] + '\t' + F[16] + '\t' + F[17]
-        print(line, file = hOUT)
+        print(line, file=hOUT)
 
     hIN.close()
     hOUT.close()

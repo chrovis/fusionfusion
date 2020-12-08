@@ -34,9 +34,10 @@ def cluster_filter_junction(inputFilePath, outputFilePrefix, args):
                                               outputFilePrefix + ".chimeric.clustered.splicing.txt")
 
     if args.no_blat:
-        annotationFunction.filterAndAnnotation(outputFilePrefix + ".chimeric.clustered.splicing.txt",
-                                               outputFilePrefix + ".fusion.result.txt",
-                                               args.genome_id, args.grc, includes_scores=False)
+        annotationFunction.filterAndAnnotation(
+            outputFilePrefix + ".chimeric.clustered.splicing.txt",
+            outputFilePrefix + ".fusion.result.txt",
+            args.genome_id, args.grc, includes_scores=False)
     else:
         ############
         filterJunctionInfo.makeJucSeqPairFa(outputFilePrefix + ".chimeric.clustered.splicing.txt",
