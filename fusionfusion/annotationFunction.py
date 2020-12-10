@@ -230,7 +230,7 @@ def merge_fusion_result(input_dir, output_file_path):
         with open(input_dir + "/ms2.fusion.result.txt") as hIN:
             for line in hIN:
                 F = line.rstrip('\n').split('\t')
-                key = '\t'.join(F[0:7] + F[8:])
+                key = '\t'.join(F[0:7] + F[8:12])
                 fus2count_ms2[key] = F[7]
 
     if os.path.exists(input_dir + "/star.fusion.result.txt"): 
@@ -238,7 +238,7 @@ def merge_fusion_result(input_dir, output_file_path):
         with open(input_dir + "/star.fusion.result.txt") as hIN:
             for line in hIN:
                 F = line.rstrip('\n').split('\t')
-                key = '\t'.join(F[0:7] + F[8:])
+                key = '\t'.join(F[0:7] + F[8:12])
                 fus2count_star[key] = F[7]
 
     if os.path.exists(input_dir + "/th2.fusion.result.txt"):
@@ -246,7 +246,7 @@ def merge_fusion_result(input_dir, output_file_path):
         with open(input_dir + "/th2.fusion.result.txt") as hIN:
             for line in hIN:
                 F = line.rstrip('\n').split('\t')
-                key = '\t'.join(F[0:7] + F[8:])
+                key = '\t'.join(F[0:7] + F[8:12])
                 fus2count_th2[key] = F[7]
 
     fus_keys = list(set(list(fus2count_star) + list(fus2count_ms2) + list(fus2count_th2)))
