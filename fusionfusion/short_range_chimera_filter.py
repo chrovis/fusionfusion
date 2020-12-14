@@ -9,6 +9,7 @@ class ShortRangeChimeraFilter:
     def __init__(self, ref_gene_tb, ens_gene_tb):
         self.ref_gene_tb = ref_gene_tb
         self.ens_gene_tb = ens_gene_tb
+        self.interval = 500
 
     def run(self, splicing_file, bam_file, output_file):
         with open(splicing_file) as splicing_reader, \
@@ -31,12 +32,9 @@ class ShortRangeChimeraFilter:
                         next_entry = (aln.query_name, not aln.is_read1)
                         pair_alns[next_locus].add(next_entry)
                 # fetch and write pair reads
-                for (chr, pos), entries in pair_alns.items():
-                    for aln in bam_reader.fetch(chr, pos, pos+1):
-                        entry = (aln.query_name, aln.is_read1)
-                        if not aln.is_secondary and entry in entries:
-                            aln.set_tags([])
-                            sam_writer.write(aln)
+                for aln in self.load_pair_alignments(bam_reader, pair_alns):
+                    aln.set_tags([])
+                    sam_writer.write(aln)
 
     def get_genes_at(self, chr, pos):
         return set(annotationFunction.get_gene_info(chr, pos, self.ref_gene_tb, self.ens_gene_tb))
@@ -64,6 +62,30 @@ class ShortRangeChimeraFilter:
             else:
                 continue
             yield aln
+
+    def load_pair_alignments(self, bam_reader, pair_alns):
+        def chunked(alns, interval):
+            chrom = start = end = None
+            entries = set()
+            for (chr, pos), es in sorted(alns.items(), key=lambda x: x[0]):
+                if chrom == chr and pos <= start + interval:
+                    end = pos
+                    entries.update(es)
+                    continue
+                if entries:
+                    yield chrom, start, end, entries
+                chrom = chr
+                start = end = pos
+                entries = set(es)
+            if entries:
+                yield chrom, start, end, entries
+
+        for (chr, start, end, entries) in chunked(pair_alns, self.interval):
+            for aln in bam_reader.fetch(chr, start, end + 1):
+                locus = (aln.reference_name, aln.reference_start)
+                entry = (aln.query_name, aln.is_read1)
+                if not aln.is_secondary and entry in entries:
+                    yield aln
 
     def split_alignment(self, aln, splicing_start):
         elems = aln.cigartuples
