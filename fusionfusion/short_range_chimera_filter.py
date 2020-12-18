@@ -21,20 +21,24 @@ class ShortRangeChimeraFilter:
                     locus = (aln.reference_name, aln.reference_start)
                     entry = (aln.query_name, aln.is_read1)
                     if entry in pair_alns[locus]:
-                        aln.set_tags([])
-                        sam_writer.write(aln)
+                        self.write_alignment(sam_writer, aln, chr, start, end)
                         pair_alns[locus].remove(entry)
                     else:
                         aln1, aln2 = self.split_alignment(aln, start)
-                        sam_writer.write(aln1)
-                        sam_writer.write(aln2)
+                        self.write_alignment(sam_writer, aln1, chr, start, end)
+                        self.write_alignment(sam_writer, aln2, chr, start, end)
                         next_locus = (aln.next_reference_name, aln.next_reference_start)
                         next_entry = (aln.query_name, not aln.is_read1)
                         pair_alns[next_locus].add(next_entry)
                 # fetch and write pair reads
                 for aln in self.load_pair_alignments(bam_reader, pair_alns):
-                    aln.set_tags([])
-                    sam_writer.write(aln)
+                    self.write_alignment(sam_writer, aln, chr, start, end)
+
+    def write_alignment(self, sam_writer, aln, chr, start, end):
+        # Strip tags since they are unnecessary for succeeding processes
+        aln.set_tags([])
+        aln.query_name += '_{}:{}-{}'.format(chr, start, end+1)
+        sam_writer.write(aln)
 
     def get_genes_at(self, chr, pos):
         return set(annotationFunction.get_gene_info(chr, pos, self.ref_gene_tb, self.ens_gene_tb))
@@ -118,7 +122,4 @@ class ShortRangeChimeraFilter:
         aln2.cigartuples = None; aln2.cigartuples = [(4, count_bases({0, 1, 4}, elems1))] + elems2
         aln1.template_length, aln2.template_length = \
             (aln.template_length, 0) if aln.template_length >= 0 else (0, aln.template_length)
-        # Strip tags since they are unnecessary for succeeding processes
-        aln1.set_tags([]); aln2.set_tags([])
-
         return (aln1, aln2)
